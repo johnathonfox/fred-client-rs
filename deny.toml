@@ -1,0 +1,14 @@
+[licenses]
+allow = ["MIT", "Apache-2.0", "BSD-3-Clause", "Unicode-3.0"]
+confidence-threshold = 0.8
+
+[advisories]
+db-urls = ["https://github.com/rustsec/advisory-db"]
+yanked = "warn"
+
+[bans]
+multiple-versions = "warn"
+wildcards = "allow"
+# `syn` and `core-foundation` have unavoidable duplicate major versions in the
+# current dependency tree; don't warn on them.
+skip = ["core-foundation", "syn"]
