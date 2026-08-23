@@ -1,7 +1,7 @@
 use crate::client::FredClient;
 use crate::error::FredError;
-use crate::params::QueryParams;
-use crate::types::{Release, ReleaseDates, Releases};
+use crate::params::{QueryParams, ReleaseTablesParams};
+use crate::types::{Release, ReleaseDates, ReleaseTables, Releases};
 use crate::Result;
 
 impl FredClient {
@@ -90,7 +90,11 @@ impl FredClient {
     }
 
     /// Get release tables.
-    pub async fn release_tables(&self, id: i32, params: QueryParams) -> Result<serde_json::Value> {
+    pub async fn release_tables(
+        &self,
+        id: i32,
+        params: ReleaseTablesParams,
+    ) -> Result<ReleaseTables> {
         let req = self
             .request("release/tables")?
             .query(&[("release_id", id)])

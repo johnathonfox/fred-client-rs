@@ -17,7 +17,7 @@ Async Rust client for the [Federal Reserve Economic Data (FRED) API](https://fre
 
 ```toml
 [dependencies]
-fred-client-rs = "0.1"
+fred-client-rs = "0.2"
 tokio = { version = "1", features = ["full"] }
 ```
 

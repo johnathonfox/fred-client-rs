@@ -11,7 +11,7 @@ fn sanitize(err: &FredError) -> String {
         FredError::Api { code, .. } => format!("api error status {code}"),
         FredError::Validation(_) => "validation error".to_string(),
         FredError::MissingApiKey => "missing api key".to_string(),
-        FredError::Parse(_) => "parse error".to_string(),
+        FredError::Parse(message) => format!("parse error: {message}"),
         FredError::Url(_) => "url error".to_string(),
     }
 }
@@ -155,9 +155,11 @@ async fn main() {
     .await;
     report(
         "release_tables",
-        client.release_tables(53, QueryParams::new()).await,
+        client
+            .release_tables(53, fred_client_rs::params::ReleaseTablesParams::new())
+            .await,
         &mut failures,
-        |_| "json".to_string(),
+        |v| format!("elements={}", v.elements.len()),
     )
     .await;
 
@@ -242,7 +244,7 @@ async fn main() {
         "series_vintage_dates",
         client.series_vintage_dates("UNRATE", one.clone()).await,
         &mut failures,
-        |_| "json".to_string(),
+        |v| format!("count={}", v.items.len()),
     )
     .await;
 
@@ -304,12 +306,7 @@ async fn main() {
             .release_observations_v2(53, V2ReleaseObservationsParams::new().limit(1))
             .await,
         &mut failures,
-        |v| {
-            format!(
-                "has_more={:?}",
-                v.get("has_more").cloned().unwrap_or_default()
-            )
-        },
+        |v| format!("has_more={}", v.has_more),
     )
     .await;
 

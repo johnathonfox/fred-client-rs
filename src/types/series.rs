@@ -53,3 +53,32 @@ pub struct SeriesList {
     #[serde(rename = "seriess")]
     pub items: Vec<Series>,
 }
+
+/// Vintage dates for a series.
+#[derive(Debug, Clone, Deserialize)]
+pub struct VintageDates {
+    /// Real-time start date.
+    #[serde(default)]
+    pub realtime_start: Option<NaiveDate>,
+    /// Real-time end date.
+    #[serde(default)]
+    pub realtime_end: Option<NaiveDate>,
+    /// Order by field.
+    #[serde(default)]
+    pub order_by: Option<String>,
+    /// Sort order.
+    #[serde(default)]
+    pub sort_order: Option<String>,
+    /// Total count.
+    #[serde(default)]
+    pub count: Option<u32>,
+    /// Offset.
+    #[serde(default)]
+    pub offset: Option<u32>,
+    /// Limit.
+    #[serde(default)]
+    pub limit: Option<u32>,
+    /// Vintage dates.
+    #[serde(rename = "vintage_dates")]
+    pub items: Vec<NaiveDate>,
+}

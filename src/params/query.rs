@@ -247,3 +247,39 @@ impl V2ReleaseObservationsParams {
         self
     }
 }
+
+/// Parameters for `fred/release/tables`.
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct ReleaseTablesParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    element_id: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    include_observation_values: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    observation_date: Option<NaiveDate>,
+}
+
+impl ReleaseTablesParams {
+    /// Create new empty release table parameters.
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Set the release table element ID. Omit for the root element.
+    pub fn element_id(mut self, element_id: i32) -> Self {
+        self.element_id = Some(element_id);
+        self
+    }
+
+    /// Include observation values for series-type elements.
+    pub fn include_observation_values(mut self, include: bool) -> Self {
+        self.include_observation_values = Some(include);
+        self
+    }
+
+    /// Set the observation date to include.
+    pub fn observation_date(mut self, date: NaiveDate) -> Self {
+        self.observation_date = Some(date);
+        self
+    }
+}

@@ -249,7 +249,13 @@ async fn test_v2_release_observations_uses_bearer_and_cursor() {
     let (server, client) = setup_mock_server().await;
 
     let response = serde_json::json!({
-        "has_more": "false",
+        "has_more": false,
+        "release": {
+            "release_id": 53,
+            "name": "Gross Domestic Product",
+            "url": "https://fred.stlouisfed.org/release?rid=53",
+            "sources": []
+        },
         "series": []
     });
 
@@ -273,5 +279,76 @@ async fn test_v2_release_observations_uses_bearer_and_cursor() {
         )
         .await
         .unwrap();
-    assert_eq!(value["has_more"], "false");
+    assert!(!value.has_more);
+    assert_eq!(value.release.release_id, 53);
+}
+
+#[tokio::test]
+async fn test_release_tables_tree() {
+    let (server, client) = setup_mock_server().await;
+
+    let response = serde_json::json!({
+        "name": "Personal consumption expenditures",
+        "element_id": 12886,
+        "release_id": "53",
+        "elements": {
+            "12887": {
+                "element_id": 12887,
+                "release_id": 53,
+                "series_id": "DGDSRL1A225NBEA",
+                "parent_id": 12886,
+                "line": "3",
+                "type": "series",
+                "name": "Goods",
+                "level": "1",
+                "children": []
+            }
+        }
+    });
+
+    Mock::given(method("GET"))
+        .and(path("/release/tables"))
+        .and(query_param("release_id", "53"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(response))
+        .mount(&server)
+        .await;
+
+    let tables = client
+        .release_tables(53, fred_client_rs::params::ReleaseTablesParams::new())
+        .await
+        .unwrap();
+    assert_eq!(tables.release_id, "53");
+    let element = tables.elements.get("12887").unwrap();
+    assert_eq!(element.name.as_deref(), Some("Goods"));
+    assert_eq!(element.element_type.as_deref(), Some("series"));
+}
+
+#[tokio::test]
+async fn test_series_vintage_dates_typed() {
+    let (server, client) = setup_mock_server().await;
+
+    let response = serde_json::json!({
+        "realtime_start": "1776-07-04",
+        "realtime_end": "9999-12-31",
+        "order_by": "vintage_date",
+        "sort_order": "asc",
+        "count": 2,
+        "offset": 0,
+        "limit": 10000,
+        "vintage_dates": ["1958-12-21", "1959-02-19"]
+    });
+
+    Mock::given(method("GET"))
+        .and(path("/series/vintagedates"))
+        .and(query_param("series_id", "GNPCA"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(response))
+        .mount(&server)
+        .await;
+
+    let vintage = client
+        .series_vintage_dates("GNPCA", QueryParams::new())
+        .await
+        .unwrap();
+    assert_eq!(vintage.count, Some(2));
+    assert_eq!(vintage.items.len(), 2);
 }

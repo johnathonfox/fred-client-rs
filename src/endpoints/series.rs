@@ -1,7 +1,9 @@
 use crate::client::FredClient;
 use crate::error::FredError;
 use crate::params::{ObservationParams, QueryParams, SearchParams};
-use crate::types::{Categories, Observations, Release, Releases, Series, SeriesList, Tags};
+use crate::types::{
+    Categories, Observations, Release, Releases, Series, SeriesList, Tags, VintageDates,
+};
 use crate::Result;
 
 impl FredClient {
@@ -123,7 +125,7 @@ impl FredClient {
         &self,
         id: impl AsRef<str>,
         params: QueryParams,
-    ) -> Result<serde_json::Value> {
+    ) -> Result<VintageDates> {
         let req = self
             .request("series/vintagedates")?
             .query(&[("series_id", id.as_ref())])

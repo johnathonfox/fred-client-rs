@@ -53,13 +53,8 @@ impl FredClient {
                 message: text,
             });
         }
-        let data = response.json::<T>().await.map_err(|err| {
-            if err.is_decode() {
-                FredError::Parse(err.to_string())
-            } else {
-                FredError::Request(err)
-            }
-        })?;
+        let text = response.text().await?;
+        let data = serde_json::from_str(&text).map_err(|err| FredError::Parse(err.to_string()))?;
         Ok(data)
     }
 }
